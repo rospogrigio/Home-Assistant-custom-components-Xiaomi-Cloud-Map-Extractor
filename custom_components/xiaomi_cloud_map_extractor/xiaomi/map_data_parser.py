@@ -106,7 +106,7 @@ class MapDataParserXiaomi(MapDataParser):
             elif block_type == MapDataParserXiaomi.CARPET_MAP:
                 data = MapDataParserXiaomi.get_bytes(raw, block_data_start, block_data_length)
                 # only the indexes where value == 1 are in carpet_map
-                map_data.carpet_map = MapDataParserXiaomi.parse_carpet_map( data, image_config )
+                map_data.carpet_map = MapDataParserXiaomi.parse_carpet_map(data, image_config)
             elif block_type == MapDataParserXiaomi.NO_CARPET_AREAS:
                 map_data.no_carpet_areas = MapDataParserXiaomi.parse_area(header, data)
             else:
@@ -115,7 +115,7 @@ class MapDataParserXiaomi(MapDataParser):
 
         if img_data:
             image, rooms = MapDataParserXiaomi.parse_image(img_data_length, img_header_length, img_data, img_header, map_data.carpet_map,
-                                                         colors, image_config)
+                                                           colors, image_config)
             map_data.image = image
             map_data.rooms = rooms
 
@@ -273,13 +273,15 @@ class MapDataParserXiaomi(MapDataParser):
         return Path(point_length, point_size, angle, [path_points])
 
     @staticmethod
-    def parse_mop_path(path:Path, mask: bytes) -> Path:
-        mop_path_points = []
-
-        for i, point in enumerate(path.path):
-            if mask[i]:
-                mop_path_points.append(point)
-        return Path(len(mop_path_points), path.point_size, path.angle, mop_path_points)
+    def parse_mop_path(path: Path, mask: bytes) -> Path:
+        mop_paths = []
+        for each_path in path.path:
+            mop_path_points = []
+            for i, point in enumerate(each_path):
+                if mask[i]:
+                    mop_path_points.append(point)
+            mop_paths.append(mop_path_points)
+        return Path(len(mop_path_points), path.point_size, path.angle, mop_paths)
 
     @staticmethod
     def parse_area(header: bytes, data: bytes) -> List[Area]:

@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import math
 from typing import Callable, Dict, List
@@ -196,7 +197,10 @@ class ImageHandler:
         for text_config in texts:
             x = text_config[CONF_X] * image.data.size[0] / 100
             y = text_config[CONF_Y] * image.data.size[1] / 100
-            ImageHandler.__draw_text__(image, text_config[CONF_TEXT], x, y, text_config[CONF_COLOR],
+            text = text_config[CONF_TEXT]
+            if text == "$curr_time$":
+                text = datetime.now().strftime("%H:%M:%S")
+            ImageHandler.__draw_text__(image, text, x, y, text_config[CONF_COLOR],
                                        text_config[CONF_FONT], text_config[CONF_FONT_SIZE])
 
     @staticmethod

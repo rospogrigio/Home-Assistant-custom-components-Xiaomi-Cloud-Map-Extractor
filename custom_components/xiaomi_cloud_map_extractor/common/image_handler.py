@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 import math
 from typing import Callable, Dict, List
@@ -77,6 +78,7 @@ class ImageHandler:
         else:
             text_color = (255, 255, 255)
         draw = ImageDraw.Draw(image, "RGBA")
+        # w, h = draw.textsize(text)
         l, t, r, b = draw.textbbox((0, 0), text)
         w, h = r - l, b - t
         draw.text(((image.size[0] - w) / 2, (image.size[1] - h) / 2), text, fill=text_color)
@@ -196,7 +198,10 @@ class ImageHandler:
         for text_config in texts:
             x = text_config[CONF_X] * image.data.size[0] / 100
             y = text_config[CONF_Y] * image.data.size[1] / 100
-            ImageHandler.__draw_text__(image, text_config[CONF_TEXT], x, y, text_config[CONF_COLOR],
+            text = text_config[CONF_TEXT]
+            if text == "$curr_time$":
+                text = datetime.now().strftime("%H:%M:%S")
+            ImageHandler.__draw_text__(image, text, x, y, text_config[CONF_COLOR],
                                        text_config[CONF_FONT], text_config[CONF_FONT_SIZE])
 
     @staticmethod
@@ -327,6 +332,7 @@ class ImageHandler:
             except ImportError:
                 _LOGGER.warning("Unable to open font: %s", font_file)
             finally:
+                # w, h = draw.textsize(text, font)
                 l, t, r, b = draw.textbbox((0, 0), text, font)
                 w, h = r - l, b - t
                 draw.text((x - w / 2, y - h / 2), text, font=font, fill=color)

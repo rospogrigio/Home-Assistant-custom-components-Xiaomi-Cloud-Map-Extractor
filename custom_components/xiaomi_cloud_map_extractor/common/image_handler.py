@@ -29,6 +29,7 @@ class ImageHandler:
         COLOR_ZONES_OUTLINE: (0xAD, 0xD8, 0xFF),
         COLOR_VIRTUAL_WALLS: (255, 0, 0),
         COLOR_NEW_DISCOVERED_AREA: (64, 64, 64),
+        COLOR_MOP_PATH: (255, 255, 255, 0x48),
         COLOR_CARPETS: (0xA9, 0xF7, 0xA9),
         COLOR_NO_CARPET_ZONES: (255, 33, 55, 127),
         COLOR_NO_CARPET_ZONES_OUTLINE: (255, 0, 0),
@@ -332,7 +333,7 @@ class ImageHandler:
                 _LOGGER.warning("Unable to open font: %s", font_file)
             finally:
                 # w, h = draw.textsize(text, font)
-                l, t, r, b = draw.textbbox((0, 0), text)
+                l, t, r, b = draw.textbbox((0, 0), text, font)
                 w, h = r - l, b - t
                 draw.text((x - w / 2, y - h / 2), text, font=font, fill=color)
 

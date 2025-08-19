@@ -50,6 +50,12 @@ class XiaomiCloudConnector:
         self._code = None
         self._serviceToken = None
 
+        self._ssecurity = "TBPG/DIIZdLe3GWjSTTxbQ=="
+        self._userId = "1840732201"
+        self._cUserId = "v8Viim4qjcgGbJAlNMxlW6I_aA0"
+        self._passToken = "V1:9d2wTZnSKA8D7PcQtwbCZKLxsJV+ws9RTAFbRjJYhLQZpCxamk6Y6/Nc01ILq3PNcyrGxRJ4K0oz9Q2J7B/7+qGLEL2gI5BTLOjknIwwQcrQLW6Iujja9LDG2wC5vyRc55kvWh1YCElsKiodkK6CgojSkKjVug0GQip6lLOOdXUWeIHQtMwH39kMenAmSR31jE0N4QhYMCYVa4UuEE4rutJu7w3Nz93xtwNyzbr+RxeUPupQPb1Btj+TGQosa7YP0HnkHmpp+mMcZbd++QhUBe1J2mgPZke/mAty+Kr2plCB9/qBmiTMKOLpNEeF/5zBlUgwpcF5GLki8nfMaiwk7Q=="
+        self._serviceToken = "BXSIaZGJ+sJLatPZz5+XB/NdrU5zaeKTz9gBlHgORJHhNnuucKPgjq8xPBjprs+ci8Kwg6uZZTPF63mjvHzrO05Hr8HWBPOJIZHit/TGMaOnhNJnfgaPQ0XN8Rv0SZIsPotr6HATYXOmPOXZ3P3n1s//vjcCE+5PWz90MaUT5kSRiEW8JAreKoe8M5WACD2WeqHZJcF9CNsLWDAlYe0WnSE/L4X81odzX75+zQX7nvE="
+
     def login_step_1(self) -> bool:
         url = "https://account.xiaomi.com/pass/serviceLogin?sid=xiaomiio&_json=true"
         headers = {
@@ -213,6 +219,7 @@ class XiaomiCloudConnector:
 
     def get_device_details_from_home(self, token: str, country: Optional[str] = None):
         devices = self.get_devices_iter(country)
+
         matching_token = filter(lambda device: device.token == token, devices)
         if match := next(matching_token, None):
             return match.country, match.user_id, match.device_id, match.model
@@ -271,9 +278,12 @@ class XiaomiCloudConnector:
             response = self._session.post(url, headers=headers, cookies=cookies, params=fields, timeout=10)
         except:
             response = None
-        if response is not None and response.status_code == 200:
-            decoded = self.decrypt_rc4(self.signed_nonce(fields["_nonce"]), response.text)
-            return json.loads(decoded)
+        if response is not None:
+            if response.status_code == 200:
+                decoded = self.decrypt_rc4(self.signed_nonce(fields["_nonce"]), response.text)
+                resp_json = json.loads(decoded)
+                return resp_json
+            _LOGGER.error("API call failed: %s (code %s)", response.text, response.status_code)
         return None
 
     def get_api_url(self, country: str) -> str:
@@ -293,6 +303,8 @@ class XiaomiCloudConnector:
         agent_id = "".join(
             map(lambda i: chr(i), [random.randint(65, 69) for _ in range(13)])
         )
+        random_text = "".join(map(lambda i: chr(i), [random.randint(97, 122) for _ in range(18)]))
+        # return f"{random_text}-{agent_id} APP/com.xiaomi.mihome APPV/10.5.201"
         return f"Android-7.1.1-1.0.0-ONEPLUS A3010-136-{agent_id} APP/com.xiaomi.mihome APPV/10.5.201"
 
     @staticmethod

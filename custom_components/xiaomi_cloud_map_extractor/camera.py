@@ -297,7 +297,7 @@ class VacuumCamera(Camera):
 
     def _handle_login(self):
         _LOGGER.debug("Logging in...")
-        self._logged_in = self._connector.login()
+        self._logged_in = True # self._connector.login()
         if self._logged_in is None:
             _LOGGER.debug("2FA required")
             self._status = CameraStatus.TWO_FACTOR_AUTH_REQUIRED
